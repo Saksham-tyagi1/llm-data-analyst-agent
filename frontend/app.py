@@ -12,7 +12,7 @@ if "chat_history" not in st.session_state:
 
 st.markdown("""
 Welcome to your natural language-powered SQL assistant! Upload a CSV, ask questions in plain English,
-and receive SQL queries, charts, and results. 
+and receive SQL queries, charts, and results.
 """)
 
 example_prompts = [
@@ -60,6 +60,14 @@ def eda_to_markdown(eda: dict) -> str:
     return md
 
 if uploaded_file is not None:
+    # Show file size info
+    file_size_mb = uploaded_file.size / 1024**2
+    st.caption(f"📁 File size: {file_size_mb:.2f} MB")
+
+    if uploaded_file.size > 40 * 1024 * 1024:
+        st.error("❌ File too large. Max allowed is 40MB.")
+        st.stop()
+
     try:
         file_id = uploaded_file.name + str(uploaded_file.size)
         if st.session_state.get("last_file_id") != file_id:
@@ -154,7 +162,10 @@ if uploaded_file and prompt:
                 cleaned_df = df.dropna()
                 st.download_button("⬇️ Download Cleaned Dataset", cleaned_df.to_csv(index=False).encode("utf-8"), "cleaned_data.csv", "text/csv")
             else:
-                st.warning("No EDA summary returned.")
+                if uploaded_file.size > 10 * 1024 * 1024:
+                    st.info("📦 EDA skipped for large file (>10MB).")
+                else:
+                    st.warning("No EDA summary returned.")
 
         with tab3:
             st.subheader("📈 Visualization")
