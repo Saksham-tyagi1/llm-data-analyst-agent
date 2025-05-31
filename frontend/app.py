@@ -89,7 +89,8 @@ if uploaded_file and prompt:
     with st.spinner("Analyzing and generating SQL..."):
         files = {"file": uploaded_file.getvalue()}
         data = {"prompt": prompt}
-        response = requests.post("http://backend:8000/query-file", data=data, files=files)
+        response = requests.post("https://llm-data-analyst-agent.onrender.com/query-file", data=data, files=files)
+
 
     if response.status_code == 200:
         result = response.json()
