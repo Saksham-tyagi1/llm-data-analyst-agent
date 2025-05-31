@@ -29,18 +29,15 @@ with st.expander("💡 Need ideas? Click to autofill examples"):
         if cols[i].button(ex):
             st.session_state["prompt"] = ex
 
-# Chat memory viewer
 with st.expander("💬 View Past Questions"):
     for i, item in enumerate(st.session_state.chat_history[::-1]):
         st.markdown(f"**Q{i+1}:** {item['prompt']}")
         st.code(item['sql'], language="sql")
         st.caption(f"Result rows: {item['rows']}")
 
-# Prompt and file input
 prompt = st.text_input("Ask your data a question:", value=st.session_state.get("prompt", ""), placeholder="e.g., Show me average price by model year")
 uploaded_file = st.file_uploader("Upload your CSV dataset", type=["csv"])
 
-# Markdown export function
 def eda_to_markdown(eda: dict) -> str:
     md = f"## EDA Summary\n"
     md += f"**Shape:** {eda['shape']}\n\n"
@@ -62,7 +59,6 @@ def eda_to_markdown(eda: dict) -> str:
             md += f"- {val}: {count}\n"
     return md
 
-# File preview block
 if uploaded_file is not None:
     try:
         file_id = uploaded_file.name + str(uploaded_file.size)
@@ -78,7 +74,6 @@ if "df_preview" in st.session_state:
     st.subheader("📄 Preview of Uploaded Data")
     st.dataframe(st.session_state["df_preview"])
 
-# Main logic
 if uploaded_file and prompt:
     try:
         df = pd.read_csv(uploaded_file)
@@ -90,7 +85,6 @@ if uploaded_file and prompt:
         files = {"file": uploaded_file.getvalue()}
         data = {"prompt": prompt}
         response = requests.post("https://llm-data-analyst-agent.onrender.com/query-file", data=data, files=files)
-
 
     if response.status_code == 200:
         result = response.json()
@@ -194,7 +188,7 @@ if uploaded_file and prompt:
             st.error(f"❌ Backend error: {error_msg}")
             if retryable:
                 if st.button("🔁 Try Again"):
-                    response = requests.post("http://backend:8000/query-file", data=data, files=files)
+                    response = requests.post("https://llm-data-analyst-agent.onrender.com/query-file", data=data, files=files)
                     st.rerun()
         except Exception:
             st.error("Something went wrong and the backend did not return JSON.")
