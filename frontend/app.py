@@ -3,6 +3,7 @@ import pandas as pd
 import requests
 import plotly.express as px
 import io
+from requests.exceptions import ChunkedEncodingError, RequestException
 
 st.set_page_config(page_title="LLM Data Analyst", layout="wide")
 st.title("🧠 LLM-Powered SQL Analyst")
@@ -60,7 +61,6 @@ def eda_to_markdown(eda: dict) -> str:
     return md
 
 if uploaded_file is not None:
-    # Show file size info
     file_size_mb = uploaded_file.size / 1024**2
     st.caption(f"📁 File size: {file_size_mb:.2f} MB")
 
@@ -92,7 +92,21 @@ if uploaded_file and prompt:
     with st.spinner("Analyzing and generating SQL..."):
         files = {"file": uploaded_file.getvalue()}
         data = {"prompt": prompt}
-        response = requests.post("https://llm-data-analyst-agent.onrender.com/query-file", data=data, files=files)
+        try:
+            response = requests.post(
+                "https://llm-data-analyst-agent.onrender.com/query-file",
+                data=data,
+                files=files,
+                timeout=60
+            )
+        except ChunkedEncodingError:
+            st.error("⚠️ Backend response ended unexpectedly. Try again or reduce file size.")
+            if st.button("🔁 Retry"):
+                st.rerun()
+            st.stop()
+        except RequestException as e:
+            st.error(f"❌ Backend connection failed: {e}")
+            st.stop()
 
     if response.status_code == 200:
         result = response.json()
@@ -197,9 +211,7 @@ if uploaded_file and prompt:
             error_msg = response.json().get("error", "Unknown error")
             retryable = response.json().get("retryable", False)
             st.error(f"❌ Backend error: {error_msg}")
-            if retryable:
-                if st.button("🔁 Try Again"):
-                    response = requests.post("https://llm-data-analyst-agent.onrender.com/query-file", data=data, files=files)
-                    st.rerun()
+            if retryable and st.button("🔁 Try Again"):
+                st.rerun()
         except Exception:
-            st.error("Something went wrong and the backend did not return JSON.")
+            st.error("❌ Something went wrong. Backend did not return valid JSON.")
