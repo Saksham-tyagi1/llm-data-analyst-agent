@@ -152,6 +152,6 @@ MIT License. See `LICENSE` file for details.
 **Saksham Tyagi**  
 📍 Arlington, Texas  
 📧 [sakshamtyagi134@gmail.com](mailto:sakshamtyagi134@gmail.com)  
-🔗 [LinkedIn](https://linkedin.com/in/sakshamtyagi)
+🔗 [LinkedIn]([https://www.linkedin.com/in/saksham-tyagi-84167a200/])
 
 ---
