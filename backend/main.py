@@ -31,6 +31,10 @@ def replace_table_names(sql_query: str, target_table: str = "uploaded") -> str:
     pattern = r"\b(FROM|JOIN)\s+(\w+)"
     return re.sub(pattern, lambda m: f"{m.group(1)} {target_table}", sql_query, flags=re.IGNORECASE)
 
+def safe_json_records(df: pd.DataFrame) -> list[dict]:
+    """Ensure all values are JSON-serializable."""
+    return json.loads(json.dumps(df.to_dict(orient="records"), default=str))
+
 @app.post("/query-file")
 async def query_file(prompt: str = Form(...), file: UploadFile = Form(...)):
     try:
@@ -42,6 +46,7 @@ async def query_file(prompt: str = Form(...), file: UploadFile = Form(...)):
         sql_query = generate_sql(prompt, schema)
         sql_query = replace_table_names(sql_query)
 
+        # Fix numeric matching issues
         numeric_columns = df.select_dtypes(include=['number']).columns.tolist()
         for col in numeric_columns:
             sql_query = re.sub(
@@ -50,6 +55,7 @@ async def query_file(prompt: str = Form(...), file: UploadFile = Form(...)):
                 sql_query
             )
 
+        # Safety filter
         forbidden_keywords = ["drop", "delete", "update", "insert", "alter"]
         if any(kw in sql_query.lower() for kw in forbidden_keywords):
             return JSONResponse(status_code=400, content={
@@ -61,7 +67,7 @@ async def query_file(prompt: str = Form(...), file: UploadFile = Form(...)):
 
         result_df = run_duckdb_query(df, sql_query)
         result_df = result_df.replace([np.inf, -np.inf], np.nan).where(pd.notnull(result_df), None)
-        json_ready = json.loads(result_df.to_json(orient="records"))
+        json_ready = safe_json_records(result_df)
 
         forced_chart = extract_chart_type_from_prompt(prompt)
         chart_info = infer_chart_type(sql_query, result_df, forced=forced_chart)
