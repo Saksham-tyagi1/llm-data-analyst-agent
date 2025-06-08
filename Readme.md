@@ -1,6 +1,18 @@
 # 🧠 LLM-Powered Data Analyst Agent
-
 A smart, interactive analytics tool that lets users query datasets using natural language. Powered by OpenAI and DuckDB, it transforms English questions into SQL, executes them, and returns insights with visualizations — all in a clean Streamlit interface.
+
+![Python](https://img.shields.io/badge/python-3.9+-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Streamlit](https://img.shields.io/badge/Streamlit-%E2%9C%94-red)
+![DuckDB](https://img.shields.io/badge/Backend-DuckDB-lightgrey)
+
+---
+
+## 🎥 Demo
+
+Here’s a quick look at the LLM-powered agent in action:
+
+![Demo](https://github.com/Saksham-tyagi1/llm-data-analyst-agent/blob/main/demo/demo.gif?raw=true)
 
 ---
 
@@ -68,6 +80,9 @@ llm-data-analyst-agent/
 ├── data/
 │   └── ecommerce.csv        # Sample dataset
 │
+├── demo/
+│   └── demo.gif             # Demo GIF
+│
 ├── requirements.txt
 └── README.md
 ```
@@ -79,7 +94,7 @@ llm-data-analyst-agent/
 ### 1. Clone the Repo
 
 ```bash
-git clone https://github.com/yourusername/llm-data-analyst-agent.git
+git clone https://github.com/Saksham-tyagi1/llm-data-analyst-agent.git
 cd llm-data-analyst-agent
 ```
 
@@ -153,6 +168,3 @@ MIT License. See `LICENSE` file for details.
 📍 Arlington, Texas  
 📧 [sakshamtyagi134@gmail.com](mailto:sakshamtyagi134@gmail.com)  
 🔗 [LinkedIn](https://www.linkedin.com/in/saksham-tyagi-84167a200/)
-
----
-
